@@ -4,7 +4,6 @@ import random
 
 
 class QuizUI:
-    """Interface visuelle pour le quiz - respecte la taille de la fenêtre"""
     
     # Couleurs
     COLOR_BG = (20, 20, 40)
@@ -35,7 +34,6 @@ class QuizUI:
     
     def draw(self, screen):
         """Dessiner l'écran du quiz"""
-        # Fond semi-transparent
         overlay = pygame.Surface((self.config.window.width, self.config.window.height))
         overlay.set_alpha(200)
         overlay.fill(self.COLOR_BG)
@@ -138,7 +136,6 @@ class QuizUI:
                 self.is_correct = self.question.is_correct(answer)
                 self.show_result = True
                 
-                # Générer le message une seule fois
                 if self.is_correct:
                     self.result_message = "Prêt à continuer? Cliquez..."
                 else:
