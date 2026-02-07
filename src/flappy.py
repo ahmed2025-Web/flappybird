@@ -14,7 +14,7 @@ from .entities import (
     Score,
     WelcomeMessage,
 )
-from .utils import GameConfig, Images, Sounds, Window
+from .utils import GameConfig, Images, Quiz, QuizUI, Sounds, Window
 
 
 class Flappy:
@@ -88,7 +88,12 @@ class Flappy:
 
         while True:
             if self.player.collided(self.pipes, self.floor):
-                return
+                quiz_result = await self.quiz()
+                if not quiz_result:
+                    # Mauvaise réponse: quitter play()
+                    return
+                # Sinon continuer le jeu
+                continue
 
             for i, pipe in enumerate(self.pipes.upper):
                 if self.player.crossed(pipe):
@@ -108,6 +113,49 @@ class Flappy:
             pygame.display.update()
             await asyncio.sleep(0)
             self.config.tick()
+
+    async def quiz(self):
+        """Affiche une quiz quand le joueur entre en collision"""
+        self.pipes.stop()
+        self.floor.stop()
+        
+        # Créer l'interface quiz
+        quiz_ui = QuizUI(self.config)
+        waiting_for_confirmation = False
+        
+        while True:
+            for event in pygame.event.get():
+                self.check_quit_event(event)
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if not waiting_for_confirmation:
+                        quiz_ui.handle_click(event.pos)
+                        if quiz_ui.is_done():
+                            waiting_for_confirmation = True
+                    else:
+                        # Clic de confirmation après le résultat
+                        if quiz_ui.is_correct:
+                            # Réinitialiser les pipes et le floor
+                            self.pipes = Pipes(self.config)
+                            self.floor = Floor(self.config)
+                            self.player.set_mode(PlayerMode.NORMAL)
+                            return True
+                        else:
+                            # Mauvaise réponse: aller au game over
+                            self.player.set_mode(PlayerMode.CRASH)
+                            self.config.sounds.hit.play()
+                            return False
+            
+            self.background.tick()
+            self.floor.tick()
+            self.pipes.tick()
+            self.score.tick()
+            self.player.tick()
+            # NE PAS afficher game_over_message pendant la quiz
+            quiz_ui.draw(self.config.screen)
+            
+            self.config.tick()
+            pygame.display.update()
+            await asyncio.sleep(0)
 
     async def game_over(self):
         """crashes the player down and shows gameover image"""

@@ -18,6 +18,12 @@ PLAYERS = (
         "assets/sprites/yellowbird-midflap.png",
         "assets/sprites/yellowbird-downflap.png",
     ),
+    # custom bird
+    (
+        "assets/sprites/bird.png",
+        "assets/sprites/bird.png",
+        "assets/sprites/bird.png",
+    ),
 )
 
 # list of backgrounds
