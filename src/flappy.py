@@ -22,17 +22,36 @@ class Flappy:
         pygame.init()
         pygame.display.set_caption("Flappy Bird")
         window = Window(288, 512)
-        screen = pygame.display.set_mode((window.width, window.height))
+        # Créer écran fullscreen
+        screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        # Récupérer les dimensions réelles
+        self.screen_width = screen.get_width()
+        self.screen_height = screen.get_height()
+        # Créer une surface pour le jeu (288x512)
+        self.game_surface = pygame.Surface((window.width, window.height))
         images = Images()
 
         self.config = GameConfig(
-            screen=screen,
+            screen=self.game_surface,
             clock=pygame.time.Clock(),
             fps=30,
             window=window,
             images=images,
             sounds=Sounds(),
         )
+        self.display_screen = screen
+        # Calculer l'offset du jeu centré
+        self.game_x = (self.screen_width - window.width) // 2
+        self.game_y = (self.screen_height - window.height) // 2
+
+    def is_click_in_game(self, pos):
+        """Vérifie si un clic est dans la zone du jeu"""
+        return (self.game_x <= pos[0] < self.game_x + 288 and
+                self.game_y <= pos[1] < self.game_y + 512)
+    
+    def convert_click_coords(self, pos):
+        """Convertit les coordonnées du fullscreen au jeu"""
+        return (pos[0] - self.game_x, pos[1] - self.game_y)
 
     async def start(self):
         while True:
@@ -63,9 +82,20 @@ class Flappy:
             self.player.tick()
             self.welcome_message.tick()
 
-            pygame.display.update()
+            self.display_centered_game()
             await asyncio.sleep(0)
             self.config.tick()
+
+    def display_centered_game(self):
+        """Affiche le jeu centré sur l'écran fullscreen avec fond blanc"""
+        # Remplir l'écran en blanc
+        self.display_screen.fill((255, 255, 255))
+        # Calculer la position pour centrer
+        x = (self.screen_width - self.game_surface.get_width()) // 2
+        y = (self.screen_height - self.game_surface.get_height()) // 2
+        # Afficher le jeu au centre
+        self.display_screen.blit(self.game_surface, (x, y))
+        pygame.display.update()
 
     def check_quit_event(self, event):
         if event.type == QUIT or (
@@ -76,6 +106,11 @@ class Flappy:
 
     def is_tap_event(self, event):
         m_left, _, _ = pygame.mouse.get_pressed()
+        # Vérifier que le clic souris est dans la zone du jeu
+        if m_left and pygame.mouse.get_focused():
+            if not self.is_click_in_game(pygame.mouse.get_pos()):
+                m_left = False
+        
         space_or_up = event.type == KEYDOWN and (
             event.key == K_SPACE or event.key == K_UP
         )
@@ -110,7 +145,7 @@ class Flappy:
             self.score.tick()
             self.player.tick()
 
-            pygame.display.update()
+            self.display_centered_game()
             await asyncio.sleep(0)
             self.config.tick()
 
@@ -127,23 +162,28 @@ class Flappy:
             for event in pygame.event.get():
                 self.check_quit_event(event)
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if not waiting_for_confirmation:
-                        quiz_ui.handle_click(event.pos)
-                        if quiz_ui.is_done():
-                            waiting_for_confirmation = True
-                    else:
-                        # Clic de confirmation après le résultat
-                        if quiz_ui.is_correct:
-                            # Réinitialiser les pipes et le floor
-                            self.pipes = Pipes(self.config)
-                            self.floor = Floor(self.config)
-                            self.player.set_mode(PlayerMode.NORMAL)
-                            return True
+                    # Vérifier que le clic est dans la zone du jeu
+                    if self.is_click_in_game(event.pos):
+                        # Convertir les coordonnées
+                        game_pos = self.convert_click_coords(event.pos)
+                        
+                        if not waiting_for_confirmation:
+                            quiz_ui.handle_click(game_pos)
+                            if quiz_ui.is_done():
+                                waiting_for_confirmation = True
                         else:
-                            # Mauvaise réponse: aller au game over
-                            self.player.set_mode(PlayerMode.CRASH)
-                            self.config.sounds.hit.play()
-                            return False
+                            # Clic de confirmation après le résultat
+                            if quiz_ui.is_correct:
+                                # Réinitialiser les pipes et le floor
+                                self.pipes = Pipes(self.config)
+                                self.floor = Floor(self.config)
+                                self.player.set_mode(PlayerMode.NORMAL)
+                                return True
+                            else:
+                                # Mauvaise réponse: aller au game over
+                                self.player.set_mode(PlayerMode.CRASH)
+                                self.config.sounds.hit.play()
+                                return False
             
             self.background.tick()
             self.floor.tick()
@@ -154,7 +194,7 @@ class Flappy:
             quiz_ui.draw(self.config.screen)
             
             self.config.tick()
-            pygame.display.update()
+            self.display_centered_game()
             await asyncio.sleep(0)
 
     async def game_over(self):
@@ -178,6 +218,5 @@ class Flappy:
             self.player.tick()
             self.game_over_message.tick()
 
-            self.config.tick()
-            pygame.display.update()
+            self.display_centered_game()
             await asyncio.sleep(0)
