@@ -43,6 +43,13 @@ class Flappy:
         # Calculer l'offset du jeu centré
         self.game_x = (self.screen_width - window.width) // 2
         self.game_y = (self.screen_height - window.height) // 2
+        
+        # Charger l'image de fond et la redimensionner pour le fullscreen
+        try:
+            self.background_image = pygame.image.load("assets/sprites/image sur algorithme et projets.jpg")
+            self.background_image = pygame.transform.scale(self.background_image, (self.screen_width, self.screen_height))
+        except:
+            self.background_image = None
 
     def is_click_in_game(self, pos):
         """Vérifie si un clic est dans la zone du jeu"""
@@ -87,13 +94,12 @@ class Flappy:
             self.config.tick()
 
     def display_centered_game(self):
-        """Affiche le jeu centré sur l'écran fullscreen avec fond blanc"""
-        # Remplir l'écran en blanc
-        self.display_screen.fill((255, 255, 255))
-        # Calculer la position pour centrer
+        if self.background_image:
+            self.display_screen.blit(self.background_image, (0, 0))
+        else:
+            self.display_screen.fill((255, 255, 255))
         x = (self.screen_width - self.game_surface.get_width()) // 2
         y = (self.screen_height - self.game_surface.get_height()) // 2
-        # Afficher le jeu au centre
         self.display_screen.blit(self.game_surface, (x, y))
         pygame.display.update()
 
@@ -106,7 +112,6 @@ class Flappy:
 
     def is_tap_event(self, event):
         m_left, _, _ = pygame.mouse.get_pressed()
-        # Vérifier que le clic souris est dans la zone du jeu
         if m_left and pygame.mouse.get_focused():
             if not self.is_click_in_game(pygame.mouse.get_pos()):
                 m_left = False
@@ -162,9 +167,7 @@ class Flappy:
             for event in pygame.event.get():
                 self.check_quit_event(event)
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    # Vérifier que le clic est dans la zone du jeu
                     if self.is_click_in_game(event.pos):
-                        # Convertir les coordonnées
                         game_pos = self.convert_click_coords(event.pos)
                         
                         if not waiting_for_confirmation:
@@ -172,7 +175,6 @@ class Flappy:
                             if quiz_ui.is_done():
                                 waiting_for_confirmation = True
                         else:
-                            # Clic de confirmation après le résultat
                             if quiz_ui.is_correct:
                                 # Réinitialiser les pipes et le floor
                                 self.pipes = Pipes(self.config)
