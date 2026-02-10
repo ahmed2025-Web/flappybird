@@ -152,7 +152,7 @@ class Images:
         if difficulty not in self.difficulty_pipes:
             # Générer les images pour cette difficulté
             upper_image = DifficultyImageGenerator.create_difficulty_image(difficulty, height=320)
-            lower_image = pygame.transform.flip(upper_image, False, True)
+            lower_image = DifficultyImageGenerator.create_difficulty_image(difficulty, height=320)
             self.difficulty_pipes[difficulty] = (upper_image, lower_image)
         
         return self.difficulty_pipes[difficulty]
