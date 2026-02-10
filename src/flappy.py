@@ -123,11 +123,30 @@ class Flappy:
 
         while True:
             if self.player.collided(self.pipes, self.floor):
-                quiz_result = await self.quiz()
+                # Récupérer la difficulté de collision et l'obstacle
+                difficulty = None
+                collided_pipe = None
+                for pipe in self.pipes.upper + self.pipes.lower:
+                    if self.player.collide(pipe):
+                        difficulty = pipe.difficulty
+                        collided_pipe = pipe
+                        break
+                
+                quiz_result = await self.quiz(difficulty)
                 if not quiz_result:
                     # Mauvaise réponse: quitter play()
                     return
-                # Sinon continuer le jeu
+                
+                # Bonne réponse: supprimer la PAIRE de pipes (haut + bas au même x)
+                if collided_pipe:
+                    x = collided_pipe.x
+                    eps = 2  # Tolérance pour comparaison float
+                    self.pipes.upper = [p for p in self.pipes.upper if abs(p.x - x) > eps]
+                    self.pipes.lower = [p for p in self.pipes.lower if abs(p.x - x) > eps]
+                
+                # Relancer le scrolling
+                self.pipes.start()
+                self.floor.start()
                 continue
 
             for i, pipe in enumerate(self.pipes.upper):
@@ -149,13 +168,13 @@ class Flappy:
             await asyncio.sleep(0)
             self.config.tick()
 
-    async def quiz(self):
+    async def quiz(self, difficulty: str = None):
         """Affiche une quiz quand le joueur entre en collision"""
         self.pipes.stop()
         self.floor.stop()
         
         # Créer l'interface quiz
-        quiz_ui = QuizUI(self.config)
+        quiz_ui = QuizUI(self.config, difficulty)
         waiting_for_confirmation = False
         
         while True:
@@ -174,9 +193,9 @@ class Flappy:
                         else:
                             # Clic de confirmation après le résultat
                             if quiz_ui.is_correct:
-                                # Réinitialiser les pipes et le floor
-                                self.pipes = Pipes(self.config)
-                                self.floor = Floor(self.config)
+                                # Bonne réponse: relancer les mouvements
+                                self.pipes.start()
+                                self.floor.start()
                                 self.player.set_mode(PlayerMode.NORMAL)
                                 return True
                             else:

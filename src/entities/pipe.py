@@ -6,9 +6,10 @@ from .entity import Entity
 
 
 class Pipe(Entity):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, difficulty: str = None, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.vel_x = -5
+        self.difficulty = difficulty  # Nom de la difficulté (Projet Piscine, Web, etc.)
 
     def draw(self) -> None:
         self.x += self.vel_x
@@ -18,6 +19,24 @@ class Pipe(Entity):
 class Pipes(Entity):
     upper: List[Pipe]
     lower: List[Pipe]
+    
+    # Les difficultés de la formation DAMS
+    DIFFICULTIES = [
+        "Projet Piscine",
+        "Projet Web",
+        "Projet Data",
+        "Algorithmique",
+        "Langage C",
+        "Swift",
+        "Java",
+        "Kotlin",
+        "R",
+        "Machine Learning",
+        "Deep Learning",
+        "Statistical Learning",
+        "Finance",
+        "Comptabilité",
+    ]
 
     def __init__(self, config: GameConfig) -> None:
         super().__init__(config)
@@ -26,6 +45,7 @@ class Pipes(Entity):
         self.bottom = self.config.window.viewport_height
         self.upper = []
         self.lower = []
+        self.difficulty_index = 0  # Pour cycler à travers les difficultés
         self.spawn_initial_pipes()
 
     def tick(self) -> None:
@@ -41,7 +61,14 @@ class Pipes(Entity):
         for pipe in self.upper + self.lower:
             pipe.vel_x = 0
 
+    def start(self) -> None:
+        for pipe in self.upper + self.lower:
+            pipe.vel_x = -5
+
     def can_spawn_pipes(self) -> bool:
+        if not self.upper:
+            return True
+        
         last = self.upper[-1]
         if not last:
             return True
@@ -78,27 +105,35 @@ class Pipes(Entity):
         self.lower.append(lower_2)
 
     def make_random_pipes(self):
-        """returns a randomly generated pipe"""
+        """returns a randomly generated pipe with a difficulty and custom image"""
+        # Choisir une difficulté (cycler à travers ou aléatoire)
+        difficulty = self.DIFFICULTIES[self.difficulty_index % len(self.DIFFICULTIES)]
+        self.difficulty_index += 1
+        
+        # Récupérer les images personnalisées pour cette difficulté
+        upper_img, lower_img = self.config.images.get_difficulty_pipe_images(difficulty)
+        
         # y of gap between upper and lower pipe
         base_y = self.config.window.viewport_height
 
         gap_y = random.randrange(0, int(base_y * 0.6 - self.pipe_gap))
         gap_y += int(base_y * 0.2)
-        pipe_height = self.config.images.pipe[0].get_height()
         pipe_x = self.config.window.width + 10
 
         upper_pipe = Pipe(
             self.config,
-            self.config.images.pipe[0],
+            upper_img,
             pipe_x,
-            gap_y - pipe_height,
+            gap_y - upper_img.get_height(),
+            difficulty=difficulty
         )
 
         lower_pipe = Pipe(
             self.config,
-            self.config.images.pipe[1],
+            lower_img,
             pipe_x,
             gap_y + self.pipe_gap,
+            difficulty=difficulty
         )
 
         return upper_pipe, lower_pipe

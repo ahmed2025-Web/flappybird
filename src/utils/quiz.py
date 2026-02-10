@@ -2,7 +2,8 @@ import random
 
 
 class QuizQuestion:
-    def __init__(self, question: str, correct_answer: str, wrong_answer1: str, wrong_answer2: str):
+    def __init__(self, difficulty: str, question: str, correct_answer: str, wrong_answer1: str, wrong_answer2: str):
+        self.difficulty = difficulty  # Le nom de la difficulté (Projet Piscine, Web, etc.)
         self.question = question
         self.correct_answer = correct_answer
         self.wrong_answers = [wrong_answer1, wrong_answer2]
@@ -19,68 +20,106 @@ class QuizQuestion:
 
 
 class Quiz:
-    """Quiz facile pour journée portes ouvertes"""
+    """Quiz pour journée portes ouvertes - Formation DAMS"""
     
     QUESTIONS = [
         QuizQuestion(
-            "Combien de bits dans un octet?",
-            "8 bits",
-            "16 bits",
-            "4 bits"
+            "Projet Piscine",
+            "Comment réussir le projet piscine ?",
+            "Organisation + commencer tôt",
+            "Attendre la dernière semaine",
+            "Copier sans comprendre"
         ),
         QuizQuestion(
-            "Quel langage utilise les balises < et >?",
-            "HTML",
-            "Python",
-            "Java"
+            "Projet Web",
+            "Le plus important pour un projet web ?",
+            "Structure + travail en équipe",
+            "Le design seulement",
+            "Tout faire seul"
         ),
         QuizQuestion(
-            "Qu'est-ce que GitHub?",
-            "Un site pour partager du code",
-            "Un jeu vidéo",
-            "Une marque d'ordinateur"
+            "Projet Data",
+            "Avant de faire un modèle, il faut :",
+            "Comprendre et nettoyer les données",
+            "Lancer le code directement",
+            "Choisir le modèle le plus complexe"
         ),
         QuizQuestion(
-            "Python est un...",
-            "Langage de programmation",
-            "Un animal venimeux",
-            "Un type de café"
+            "Algorithmique",
+            "Une bonne solution algorithmique est :",
+            "La plus claire et efficace",
+            "La plus longue",
+            "La plus compliquée"
         ),
         QuizQuestion(
-            "Quelle est la capitale du web?",
-            "L'algorithme",
-            "Le routeur",
-            "La batterie"
+            "Langage C",
+            "Le plus grand danger en C ?",
+            "La gestion de la mémoire",
+            "Les boucles",
+            "Les fonctions"
         ),
         QuizQuestion(
-            "Qu'est-ce qu'un bug en programmation?",
-            "Une erreur dans le code",
-            "Un virus informatique",
-            "Un type de souris"
+            "Swift",
+            "Swift est surtout utilisé pour :",
+            "Les apps iOS",
+            "Le web",
+            "Les bases de données"
         ),
         QuizQuestion(
-            "Combien de dimensions a un pixel?",
-            "2 (largeur x hauteur)",
-            "3 (3D)",
-            "1 (ligne)"
+            "Java",
+            "L'avantage principal de Java ?",
+            "Portable (JVM)",
+            "Rapide à écrire",
+            "Très simple"
         ),
         QuizQuestion(
-            "Quel langage est utilisé pour les sites web?",
-            "JavaScript",
-            "Assembly",
-            "Rust"
+            "Kotlin",
+            "Kotlin est principalement lié à :",
+            "Android",
+            "iOS",
+            "Web"
         ),
         QuizQuestion(
-            "Qu'est-ce que le Wi-Fi?",
-            "Un réseau sans fil",
-            "Un type de mur",
-            "Une marque de biscuit"
+            "R",
+            "R est surtout utilisé pour :",
+            "Statistiques et data",
+            "Jeux vidéo",
+            "Systèmes embarqués"
         ),
         QuizQuestion(
-            "Combien de bits dans un kilobit?",
-            "1000 bits",
-            "1024 bits",
-            "512 bits"
+            "Machine Learning",
+            "Le machine learning permet :",
+            "D'apprendre à partir des données",
+            "De coder sans données",
+            "De tout prédire parfaitement"
+        ),
+        QuizQuestion(
+            "Deep Learning",
+            "Le deep learning est basé sur :",
+            "Des réseaux de neurones",
+            "Des règles fixes",
+            "Des tableaux Excel"
+        ),
+        QuizQuestion(
+            "Statistical Learning",
+            "Le statistical learning sert à :",
+            "Modéliser et interpréter les données",
+            "Décorer des graphiques",
+            "Remplacer les maths"
+        ),
+        QuizQuestion(
+            "Finance",
+            "En finance, le plus important est :",
+            "Analyser le risque",
+            "Deviner",
+            "Copier les autres"
+        ),
+        QuizQuestion(
+            "Comptabilité",
+            "La comptabilité sert à :",
+            "Suivre la santé financière",
+            "Programmer",
+            "Faire du marketing"
         ),
     ]
     
@@ -88,3 +127,11 @@ class Quiz:
     def get_random_question() -> QuizQuestion:
         """Retourne une question aléatoire"""
         return random.choice(Quiz.QUESTIONS)
+    
+    @staticmethod
+    def get_question_by_difficulty(difficulty: str) -> QuizQuestion:
+        """Retourne la question correspondant à une difficulté"""
+        questions = [q for q in Quiz.QUESTIONS if q.difficulty == difficulty]
+        if questions:
+            return questions[0]
+        return Quiz.get_random_question()
