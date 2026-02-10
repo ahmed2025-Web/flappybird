@@ -109,15 +109,21 @@ class Images:
         self.randomize()
 
     def randomize(self):
-        # select random background sprites
-        rand_bg = random.randint(0, len(BACKGROUNDS) - 1)
+        # Charger le background JPO personnalisé
+        try:
+            bg = pygame.image.load("assets/sprites/jpo-background.png").convert()
+            # Redimensionner pour adapter à la résolution du jeu (288x512)
+            self.background = pygame.transform.scale(bg, (288, 512))
+        except:
+            # Fallback: utiliser un background aléatoire si l'image JPO n'existe pas
+            rand_bg = random.randint(0, len(BACKGROUNDS) - 1)
+            self.background = pygame.image.load(BACKGROUNDS[rand_bg]).convert()
+        
         # select random player sprites
         #rand_player = random.randint(0, len(PLAYERS) - 1)
         rand_player = 3
         # select random pipe sprites
         rand_pipe = random.randint(0, len(PIPES) - 1)
-
-        self.background = pygame.image.load(BACKGROUNDS[rand_bg]).convert()
         
         # Charger et redimensionner les images du custom bird
         p0 = pygame.image.load(PLAYERS[rand_player][0]).convert_alpha()

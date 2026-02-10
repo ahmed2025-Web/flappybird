@@ -85,7 +85,7 @@ class Flappy:
                     return
 
             self.background.tick()
-            self.floor.tick()
+            # self.floor.tick()  # Enlever l'image du sol
             self.player.tick()
             self.welcome_message.tick()
 
@@ -164,7 +164,7 @@ class Flappy:
                     self.player.flap()
 
             self.background.tick()
-            self.floor.tick()
+            # self.floor.tick()  # Enlever l'image du sol
             self.pipes.tick()
             self.score.tick()
             self.player.tick()
@@ -207,7 +207,7 @@ class Flappy:
                                 return False
             
             self.background.tick()
-            self.floor.tick()
+            #self.floor.tick()
             self.pipes.tick()
             self.score.tick()
             self.player.tick()
@@ -233,7 +233,7 @@ class Flappy:
                         return
 
             self.background.tick()
-            self.floor.tick()
+            # self.floor.tick()  # Enlever l'image du sol
             self.pipes.tick()
             self.score.tick()
             self.player.tick()

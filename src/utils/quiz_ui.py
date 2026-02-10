@@ -115,7 +115,7 @@ class QuizUI:
                 result_bg.set_alpha(240)
                 screen.blit(result_bg, (0, 390))
                 
-                result_text = font_result.render("✓ BONNE RÉPONSE!", True, (255, 255, 255))
+                result_text = font_result.render(" BONNE RÉPONSE!", True, (255, 255, 255))
                 result_rect = result_text.get_rect(center=(self.config.window.width // 2, 410))
                 screen.blit(result_text, result_rect)
                 
@@ -129,7 +129,7 @@ class QuizUI:
                 result_bg.set_alpha(240)
                 screen.blit(result_bg, (0, 390))
                 
-                result_text = font_result.render("✗ DOMMAGE!", True, (255, 255, 255))
+                result_text = font_result.render(" DOMMAGE!", True, (255, 255, 255))
                 result_rect = result_text.get_rect(center=(self.config.window.width // 2, 410))
                 screen.blit(result_text, result_rect)
                 
