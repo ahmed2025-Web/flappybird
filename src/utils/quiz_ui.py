@@ -1,6 +1,7 @@
 import pygame
 from .quiz import Quiz
 import random
+from .best_score import BestScoreManager
 
 
 class QuizUI:
@@ -47,7 +48,7 @@ class QuizUI:
         # Afficher la difficulté si présente
         if self.difficulty:
             font_difficulty = pygame.font.SysFont("Arial", 14, bold=True)
-            difficulty_text = font_difficulty.render(f"⬜ {self.difficulty}", True, self.COLOR_DIFFICULTY)
+            difficulty_text = font_difficulty.render(f" {self.difficulty}", True, self.COLOR_DIFFICULTY)
             difficulty_rect = difficulty_text.get_rect(center=(self.config.window.width // 2, 15))
             screen.blit(difficulty_text, difficulty_rect)
         
